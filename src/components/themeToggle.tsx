@@ -1,17 +1,15 @@
 'use client';
 
-import { useTheme } from "next-themes";
-
+import { useTheme } from 'next-themes';
 
 export default function ThemeToggle() {
-    const {theme, setTheme} = useTheme();
-    return (
+  const { theme, setTheme } = useTheme();
+
+  return (
     <button
       id="theme-toggle"
-      onClick={() =>
-            setTheme(theme === "dark" ? "light" : "dark")
-        }
-      className="relative w-14 h-7 rounded-full bg-gray-200 dark:bg-gray-700
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      className="cursor-pointer relative w-14 h-7 rounded-full bg-slate-200 dark:bg-slate-700
         transition-colors duration-300 focus:outline-none focus-visible:ring-2
         focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -25,9 +23,9 @@ export default function ThemeToggle() {
         🌙
       </span>
       <span
-        className={`absolute top-0.5 w-6 h-6 rounded-full bg-white dark:bg-slate-900
-          shadow-md transition-transform duration-300 ease-in-out
-          ${theme === 'dark' ? '-translate-x-6.5' : 'translate-x-0.5'}`}
+        className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white dark:bg-slate-900
+          shadow-md transition-all duration-300 ease-in-out
+          ${theme === 'light' ? 'translate-x-7' : 'translate-x-0'}`}
       />
     </button>
   );

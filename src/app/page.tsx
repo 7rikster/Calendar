@@ -1,10 +1,9 @@
-import ThemeToggle from "@/components/themeToggle";
-import Image from "next/image";
+import Calendar from "@/components/Calendar/Calendar";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <ThemeToggle/>
-    </div>
+    <main className="flex-1 flex items-start justify-center bg-background transition-colors duration-300">
+      <Calendar />
+    </main>
   );
 }

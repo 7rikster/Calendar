@@ -8,10 +8,11 @@ export interface UseRangeSelectionReturn {
   endDate: Date | null;
   isDragging: boolean;
   hoverDate: Date | null;
+  /** 'first' = start date set, waiting for second click to complete range */
+  clickPhase: 'idle' | 'first';
   handleMouseDown: (date: Date) => void;
   handleMouseEnter: (date: Date) => void;
   handleMouseUp: () => void;
-  handleDateClick: (date: Date) => void;
   isInRange: (date: Date) => boolean;
   isRangeStart: (date: Date) => boolean;
   isRangeEnd: (date: Date) => boolean;
@@ -21,18 +22,30 @@ export interface UseRangeSelectionReturn {
 }
 
 /**
- * Custom hook for date range selection with drag-to-select support.
- * Handles click selection, drag selection, and reverse range normalization.
+ * Custom hook for date range selection.
+ *
+ * Supports TWO interaction models:
+ *   1. Drag-to-select: mousedown → mousemove → mouseup finalises the range.
+ *   2. Click-click:    click once to set start, click again to set end.
+ *
+ * `clickPhase` tracks whether we are waiting for the second click.
+ * Refs mirror state so that synchronous handlers always read the latest value.
  */
 export function useRangeSelection(): UseRangeSelectionReturn {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
+  const [clickPhase, setClickPhase] = useState<'idle' | 'first'>('idle');
+
+  // Refs mirror state so that synchronous handlers always read the latest value
+  const isDraggingRef = useRef(false);
   const dragStartRef = useRef<Date | null>(null);
   const hasDraggedRef = useRef(false);
+  const hoverDateRef = useRef<Date | null>(null);
+  const clickPhaseRef = useRef<'idle' | 'first'>('idle');
+  const firstClickDateRef = useRef<Date | null>(null);
 
-  /** Normalize a range so start <= end */
   const normalize = useCallback(
     (s: Date | null, e: Date | null): { start: Date; end: Date } | null => {
       if (!s) return null;
@@ -42,7 +55,6 @@ export function useRangeSelection(): UseRangeSelectionReturn {
     []
   );
 
-  /** Get the currently effective range (accounts for drag preview) */
   const getEffectiveRange = useCallback((): { start: Date; end: Date } | null => {
     if (isDragging && dragStartRef.current && hoverDate) {
       return normalize(dragStartRef.current, hoverDate);
@@ -51,47 +63,71 @@ export function useRangeSelection(): UseRangeSelectionReturn {
   }, [isDragging, hoverDate, startDate, endDate, normalize]);
 
   const handleMouseDown = useCallback((date: Date) => {
+    if (clickPhaseRef.current === 'first' && firstClickDateRef.current) {
+      const range = normalize(firstClickDateRef.current, date);
+      if (range) {
+        setStartDate(range.start);
+        setEndDate(isSameDay(range.start, range.end) ? null : range.end);
+      }
+      clickPhaseRef.current = 'idle';
+      firstClickDateRef.current = null;
+      setClickPhase('idle');
+      setHoverDate(null);
+      hoverDateRef.current = null;
+      isDraggingRef.current = false;
+      dragStartRef.current = null;
+      hasDraggedRef.current = false;
+      return;
+    }
+
     dragStartRef.current = date;
     hasDraggedRef.current = false;
+    isDraggingRef.current = true;
+    hoverDateRef.current = date;
     setIsDragging(true);
     setHoverDate(date);
-  }, []);
+  }, [normalize]);
 
   const handleMouseEnter = useCallback((date: Date) => {
-    if (isDragging) {
+    if (isDraggingRef.current) {
       if (dragStartRef.current && !isSameDay(date, dragStartRef.current)) {
         hasDraggedRef.current = true;
       }
+      hoverDateRef.current = date;
       setHoverDate(date);
+      return;
     }
-  }, [isDragging]);
+  }, []);
 
   const handleMouseUp = useCallback(() => {
-    if (isDragging && dragStartRef.current && hasDraggedRef.current && hoverDate) {
-      const range = normalize(dragStartRef.current, hoverDate);
-      if (range) {
-        setStartDate(range.start);
-        setEndDate(range.end);
+    if (isDraggingRef.current && dragStartRef.current) {
+      if (hasDraggedRef.current && hoverDateRef.current) {
+        const range = normalize(dragStartRef.current, hoverDateRef.current);
+        if (range) {
+          setStartDate(range.start);
+          setEndDate(range.end);
+        }
+        clickPhaseRef.current = 'idle';
+        firstClickDateRef.current = null;
+        setClickPhase('idle');
+      } else {
+        const clickedDate = dragStartRef.current;
+        setStartDate(clickedDate);
+        setEndDate(null);
+        clickPhaseRef.current = 'first';
+        firstClickDateRef.current = clickedDate;
+        setClickPhase('first');
       }
     }
-    setIsDragging(false);
-    setHoverDate(null);
+    isDraggingRef.current = false;
     dragStartRef.current = null;
-  }, [isDragging, hoverDate, normalize]);
-
-  const handleDateClick = useCallback((date: Date) => {
-    if (hasDraggedRef.current) return;
-    if (!startDate || (startDate && endDate)) {
-      setStartDate(date);
-      setEndDate(null);
-    } else {
-      const range = normalize(startDate, date);
-      if (range) {
-        setStartDate(range.start);
-        setEndDate(range.end);
-      }
+    hasDraggedRef.current = false;
+    setIsDragging(false);
+    if (clickPhaseRef.current !== 'first') {
+      hoverDateRef.current = null;
+      setHoverDate(null);
     }
-  }, [startDate, endDate, normalize]);
+  }, [normalize]);
 
   const isInRange = useCallback((date: Date): boolean => {
     const range = getEffectiveRange();
@@ -121,15 +157,20 @@ export function useRangeSelection(): UseRangeSelectionReturn {
   const clearSelection = useCallback(() => {
     setStartDate(null);
     setEndDate(null);
-    setIsDragging(false);
-    setHoverDate(null);
+    isDraggingRef.current = false;
+    hoverDateRef.current = null;
     dragStartRef.current = null;
     hasDraggedRef.current = false;
+    clickPhaseRef.current = 'idle';
+    firstClickDateRef.current = null;
+    setIsDragging(false);
+    setHoverDate(null);
+    setClickPhase('idle');
   }, []);
 
   return {
-    startDate, endDate, isDragging, hoverDate,
-    handleMouseDown, handleMouseEnter, handleMouseUp, handleDateClick,
+    startDate, endDate, isDragging, hoverDate, clickPhase,
+    handleMouseDown, handleMouseEnter, handleMouseUp,
     isInRange, isRangeStart, isRangeEnd, isRangeMiddle,
     clearSelection, getEffectiveRange,
   };

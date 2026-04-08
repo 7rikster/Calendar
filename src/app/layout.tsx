@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/themeProvider";
 import { cn } from "@/lib/utils";
@@ -20,15 +20,13 @@ export default function RootLayout({
     <html
       lang="en" className={cn("font-sans", inter.variable)}
     >
-      <ThemeProvider
-        attribute={"class"}
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-
-        <body className="min-h-full flex flex-col">{children}</body>
-      </ThemeProvider>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider
+          attribute={"class"}
+          defaultTheme="system"
+          enableSystem
+        >{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

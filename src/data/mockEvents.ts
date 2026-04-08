@@ -1,7 +1,8 @@
 export interface CalendarEvent {
   id: string;
   title: string;
-  date: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD (start date)
+  endDate?: string; // YYYY-MM-DD (end date for multi-day events)
   time: string; // HH:mm
   color: string;
   description?: string;

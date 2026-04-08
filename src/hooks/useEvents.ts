@@ -4,6 +4,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { type CalendarEvent, mockEvents } from '@/data/mockEvents';
 import { formatDateKey } from '@/utils/dateUtils';
 
+const STORAGE_KEY = 'calendar-events';
+
 export interface UseEventsReturn {
   events: CalendarEvent[];
   eventsByDate: Map<string, CalendarEvent[]>;
@@ -13,11 +15,30 @@ export interface UseEventsReturn {
   deleteEvent: (id: string) => void;
 }
 
-/**
- * Custom hook for event management.
-*/
+
+function eventSpansDate(event: CalendarEvent, dateKey: string): boolean {
+  if (!event.endDate || event.endDate === event.date) {
+    return event.date === dateKey;
+  }
+  return dateKey >= event.date && dateKey <= event.endDate;
+}
+
+function eventOverlapsRange(event: CalendarEvent, startKey: string, endKey: string): boolean {
+  const evStart = event.date;
+  const evEnd = event.endDate || event.date;
+  return evStart <= endKey && evEnd >= startKey;
+}
+
+
 export function useEvents(): UseEventsReturn {
-  const [events, setEvents] = useState<CalendarEvent[]>(mockEvents);
+  const [events, setEvents] = useState<CalendarEvent[]>(() => {
+    if (typeof window === 'undefined') return mockEvents;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) return JSON.parse(stored) as CalendarEvent[];
+    } catch {}
+    return mockEvents;
+  });
 
   const eventsByDate = useMemo(() => {
     const map = new Map<string, CalendarEvent[]>();
@@ -29,41 +50,55 @@ export function useEvents(): UseEventsReturn {
     return map;
   }, [events]);
 
+  
   const getEventsForDate = useCallback(
     (date: Date): CalendarEvent[] => {
-      return eventsByDate.get(formatDateKey(date)) || [];
+      const dateKey = formatDateKey(date);
+      return events.filter(event => eventSpansDate(event, dateKey));
     },
-    [eventsByDate]
+    [events]
   );
+
 
   const getEventsForRange = useCallback(
     (start: Date, end: Date): CalendarEvent[] => {
-      const result: CalendarEvent[] = [];
-      const current = new Date(start);
-      while (current <= end) {
-        const dayEvents = eventsByDate.get(formatDateKey(current));
-        if (dayEvents) result.push(...dayEvents);
-        current.setDate(current.getDate() + 1);
-      }
-      return result.sort((a, b) => {
-        if (a.date !== b.date) return a.date.localeCompare(b.date);
-        return a.time.localeCompare(b.time);
-      });
+      const startKey = formatDateKey(start);
+      const endKey = formatDateKey(end);
+      return events
+        .filter(event => eventOverlapsRange(event, startKey, endKey))
+        .sort((a, b) => {
+          if (a.date !== b.date) return a.date.localeCompare(b.date);
+          return a.time.localeCompare(b.time);
+        });
     },
-    [eventsByDate]
+    [events]
   );
+
+  const persistEvents = useCallback((updated: CalendarEvent[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+  }, []);
 
   const addEvent = useCallback((event: Omit<CalendarEvent, 'id'>) => {
     const newEvent: CalendarEvent = {
       ...event,
       id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     };
-    setEvents(prev => [...prev, newEvent]);
-  }, []);
+    setEvents(prev => {
+      const updated = [...prev, newEvent];
+      persistEvents(updated);
+      return updated;
+    });
+  }, [persistEvents]);
 
   const deleteEvent = useCallback((id: string) => {
-    setEvents(prev => prev.filter(e => e.id !== id));
-  }, []);
+    setEvents(prev => {
+      const updated = prev.filter(e => e.id !== id);
+      persistEvents(updated);
+      return updated;
+    });
+  }, [persistEvents]);
 
   return { events, eventsByDate, getEventsForDate, getEventsForRange, addEvent, deleteEvent };
 }
