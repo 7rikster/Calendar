@@ -100,7 +100,7 @@ export default function CalendarHeader({
         </div>
       </div>
 
-      <div className="relative h-5 sm:h-6 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center gap-[10px] sm:gap-3 overflow-hidden">
+      <div className="relative h-5 sm:h-6 bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center gap-[10px] sm:gap-3 overflow-hidden">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}

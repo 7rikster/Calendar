@@ -37,7 +37,20 @@ export function useEvents(): UseEventsReturn {
     if (typeof window === 'undefined') return mockEvents;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored) as CalendarEvent[];
+      if (stored) {
+        const storedEvents = JSON.parse(stored) as CalendarEvent[];
+        const holidays = mockEvents.filter(e => e.isHoliday);
+        const combined = [...storedEvents];
+        holidays.forEach(h => {
+          const index = combined.findIndex(e => e.id === h.id);
+          if (index === -1) {
+            combined.push(h);
+          } else {
+            combined[index] = { ...combined[index], isHoliday: h.isHoliday, title: h.title, color: h.color };
+          }
+        });
+        return combined;
+      }
     } catch {}
     return mockEvents;
   });

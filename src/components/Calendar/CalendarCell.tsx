@@ -54,9 +54,12 @@ const CalendarCell = memo(function CalendarCell({
 
   const singleDayEvents = events.filter(e => !e.endDate || e.endDate === e.date);
 
+  const hasHoliday = events.some(e => e.isHoliday);
+
   const getDateColor = () => {
     if (day.isToday) return '';
     if (!day.isCurrentMonth) return 'text-slate-400 dark:text-slate-400';
+    if (hasHoliday) return 'text-red-500 font-bold dark:text-red-400';
     if (day.isSunday) return 'text-red-500 dark:text-red-400';
     if (day.isSaturday) return 'text-blue-500 dark:text-blue-400';
     return 'text-slate-700 dark:text-slate-200';

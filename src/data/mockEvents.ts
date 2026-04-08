@@ -6,6 +6,7 @@ export interface CalendarEvent {
   time: string; // HH:mm
   color: string;
   description?: string;
+  isHoliday?: boolean;
 }
 
 export const EVENT_COLORS = [
@@ -30,13 +31,14 @@ export const mockEvents: CalendarEvent[] = [
   { id: '8', title: 'Workshop: React 19', date: '2026-04-22', time: '13:00', color: '#06b6d4', description: 'Deep dive into new React 19 features' },
   { id: '9', title: 'Morning Gym 💪', date: '2026-04-25', time: '07:00', color: '#22c55e' },
   { id: '10', title: 'Project Deadline 🚀', date: '2026-04-30', time: '23:59', color: '#ef4444', description: 'Final submission for the calendar project' },
-  { id: '15', title: 'Coffee Chat ☕', date: '2026-04-09', time: '10:00', color: '#f59e0b', description: 'Coffee with the new intern' },
-  { id: '16', title: 'Release v2.0', date: '2026-04-22', time: '09:00', color: '#22c55e', description: 'Ship calendar v2 to production' },
-  { id: '17', title: 'Yoga Class 🧘', date: '2026-04-25', time: '18:00', color: '#a855f7' },
+  { id: '11', title: 'Coffee Chat ☕', date: '2026-04-09', time: '10:00', color: '#f59e0b', description: 'Coffee with the new intern' },
+  { id: '12', title: 'Mid-April Festival', date: '2026-04-15', time: '00:00', color: '#ef4444', isHoliday: true, description: 'Public spring holiday' },
+  { id: '13', title: 'Release v2.0', date: '2026-04-22', time: '09:00', color: '#22c55e', description: 'Ship calendar v2 to production' },
+  { id: '14', title: 'Yoga Class 🧘', date: '2026-04-25', time: '18:00', color: '#a855f7' },
   // May 2026
-  { id: '11', title: 'May Day Holiday 🌸', date: '2026-05-01', time: '00:00', color: '#f59e0b', description: 'Public holiday' },
-  { id: '12', title: 'Client Meeting', date: '2026-05-05', time: '10:00', color: '#a855f7', description: 'Quarterly review with the client' },
+  { id: '15', title: 'May Day Holiday 🌸', date: '2026-05-01', time: '00:00', color: '#ef4444', isHoliday: true, description: 'Public holiday' },
+  { id: '16', title: 'Client Meeting', date: '2026-05-05', time: '10:00', color: '#a855f7', description: 'Quarterly review with the client' },
   // March 2026
-  { id: '13', title: 'Quarter Review', date: '2026-03-28', time: '14:00', color: '#3b82f6', description: 'Q1 performance review' },
-  { id: '14', title: 'Team Dinner 🍕', date: '2026-03-30', time: '19:00', color: '#ec4899', description: 'End of quarter celebration dinner' },
+  { id: '17', title: 'Quarter Review', date: '2026-03-28', time: '14:00', color: '#3b82f6', description: 'Q1 performance review' },
+  { id: '18', title: 'Team Dinner 🍕', date: '2026-03-30', time: '19:00', color: '#ec4899', description: 'End of quarter celebration dinner' },
 ];

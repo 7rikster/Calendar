@@ -136,7 +136,7 @@ export default function CalendarGrid({
 
   return (
     <div 
-      className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full"
+      className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full dark:bg-slate-900/80"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -156,7 +156,7 @@ export default function CalendarGrid({
         ))}
       </div>
       <div className="h-px bg-slate-200 dark:bg-slate-700 mb-1" />
-      <div className="relative overflow-hidden w-full">
+      <div className="relative w-full">
         <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.div
             key={`${year}-${month}`}

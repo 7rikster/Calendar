@@ -1,10 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { type CalendarEvent } from '@/data/mockEvents';
-import { formatDateDisplay, formatTime, formatDateKey } from '@/utils/dateUtils';
-import { Trash2, Pencil } from 'lucide-react';
+import { formatDateDisplay, formatTime, formatDateKey, MONTH_NAMES } from '@/utils/dateUtils';
+import { Trash2, Pencil, StickyNote, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useNotes } from '@/hooks/useNotes';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AgendaPanelProps {
   startDate: Date | null;
@@ -14,6 +16,8 @@ interface AgendaPanelProps {
   onDeleteEvent: (id: string) => void;
   onCreateEvent: (date: Date) => void;
   onEditEvent: (event: CalendarEvent) => void;
+  year: number;
+  month: number;
 }
 
 function parseDateKey(dateKey: string): Date {
@@ -40,6 +44,8 @@ export default function AgendaPanel({
   onDeleteEvent,
   onCreateEvent,
   onEditEvent,
+  year,
+  month,
 }: AgendaPanelProps) {
   const events = useMemo(() => {
     if (!startDate) return [];
@@ -79,12 +85,67 @@ export default function AgendaPanel({
     return Array.from(groups.values()).filter(g => g.events.length > 0);
   }, [events, startDate, endDate]);
 
+  const { getNote, saveNote } = useNotes();
+  const [showNotes, setShowNotes] = useState(true);
+  const [localNote, setLocalNote] = useState('');
+
+  // Sync Note from hook when month/year changes
+  useEffect(() => {
+    setLocalNote(getNote(year, month));
+  }, [year, month, getNote]);
+
+  // Debounce save to LocalStorage
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      saveNote(year, month, localNote);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [localNote, year, month, saveNote]);
+
   const hasSelection = startDate !== null;
   const isRange = startDate && endDate && formatDateKey(startDate) !== formatDateKey(endDate);
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-lg
-      dark:shadow-slate-900/50 overflow-hidden border border-slate-100 dark:border-slate-700/50">
+    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl 
+      border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      
+      {/* Monthly Notes Section */}
+      <div className="shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
+        <div 
+          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
+          onClick={() => setShowNotes(!showNotes)}
+        >
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold text-sm">
+            <StickyNote className="w-4 h-4 text-amber-500" />
+            Notes for {MONTH_NAMES[month]} {year}
+          </div>
+          {showNotes ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        </div>
+        <AnimatePresence initial={false}>
+          {showNotes && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-4 pt-1">
+                <textarea
+                  className="w-full min-h-[100px] resize-y bg-slate-50 dark:bg-slate-800 
+                    border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm
+                    text-slate-700 dark:text-slate-300 placeholder:text-slate-400
+                    focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
+                  placeholder={`Write memos for ${MONTH_NAMES[month]}...`}
+                  value={localNote}
+                  onChange={(e) => setLocalNote(e.target.value)}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <div className="px-4 sm:px-5 py-4 border-b border-slate-100 dark:border-slate-700/50">
         <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 tracking-wide uppercase">
           Agenda

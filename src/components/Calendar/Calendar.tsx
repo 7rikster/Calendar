@@ -175,6 +175,8 @@ export default function Calendar() {
               onDeleteEvent={deleteEvent}
               onCreateEvent={handleOpenModal}
               onEditEvent={handleEditEventClick}
+              year={year}
+              month={month}
             />
           </div>
         </div>
