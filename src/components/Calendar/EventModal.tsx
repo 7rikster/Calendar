@@ -45,7 +45,6 @@ export default function EventModal({ isOpen, selectedDate, selectedEndDate, even
     }
   }, [isOpen, eventToEdit]);
 
-  // Auto-dismiss conflict warning when time changes
   useEffect(() => {
     if (showConflictWarning) {
       setShowConflictWarning(false);
@@ -81,7 +80,6 @@ export default function EventModal({ isOpen, selectedDate, selectedEndDate, even
       e.preventDefault();
       if (!title.trim() || !selectedDate) return;
 
-      // Check for conflicts before saving
       if (onCheckConflicts && !showConflictWarning) {
         const dateKey = formatDateKey(selectedDate);
         const endDateKey = isRange && selectedEndDate ? formatDateKey(selectedEndDate) : undefined;
@@ -89,7 +87,7 @@ export default function EventModal({ isOpen, selectedDate, selectedEndDate, even
         if (found.length > 0) {
           setConflicts(found);
           setShowConflictWarning(true);
-          return; // Don't save yet — show warning first
+          return; 
         }
       }
 
@@ -113,7 +111,6 @@ export default function EventModal({ isOpen, selectedDate, selectedEndDate, even
   const handleEditTime = useCallback(() => {
     setShowConflictWarning(false);
     setConflicts([]);
-    // Focus the time input
     const timeInput = document.getElementById('event-time');
     if (timeInput) {
       timeInput.focus();
@@ -175,7 +172,6 @@ export default function EventModal({ isOpen, selectedDate, selectedEndDate, even
             </div>
           )}
 
-          {/* Conflict Warning */}
           {showConflictWarning && conflicts.length > 0 && (
             <div className="rounded-xl border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 
               overflow-hidden animate-fade-in">

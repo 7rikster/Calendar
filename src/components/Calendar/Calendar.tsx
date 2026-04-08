@@ -53,7 +53,7 @@ export default function Calendar() {
     setModalOpen(false);
     setModalDate(null);
     setModalEndDate(null);
-    setTimeout(() => setEditingEvent(null), 300); // clear after animation
+    setTimeout(() => setEditingEvent(null), 300);
   }, []);
 
   const handleSaveEvent = useCallback(
@@ -104,9 +104,17 @@ export default function Calendar() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-slate-900/50
-        overflow-hidden border border-slate-100 dark:border-slate-700/50
-        transition-shadow duration-300 hover:shadow-2xl dark:hover:shadow-slate-900/60">
+      <div className="relative isolate">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center drop-shadow-md pointer-events-none">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br from-red-400 to-red-600 border border-red-700/80 shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.3),_0_2px_4px_rgba(0,0,0,0.4)] relative z-10 flex items-center justify-center">
+            <div className="absolute top-[15%] left-[20%] w-1.5 h-1.5 bg-white/50 rounded-full" />
+            <div className="w-1.5 h-1.5 rounded-full bg-red-900/40 shadow-inner" />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_15px_40px_-5px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_-5px_rgba(0,0,0,0.5)]
+          overflow-hidden border border-slate-100 dark:border-slate-700/50 relative z-0
+          transition-shadow duration-300">
         
         <CalendarHeader
           year={year}
@@ -160,6 +168,7 @@ export default function Calendar() {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div className="mt-4 flex flex-col items-center">

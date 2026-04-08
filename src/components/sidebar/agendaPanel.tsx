@@ -89,12 +89,10 @@ export default function AgendaPanel({
   const [showNotes, setShowNotes] = useState(true);
   const [localNote, setLocalNote] = useState('');
 
-  // Sync Note from hook when month/year changes
   useEffect(() => {
     setLocalNote(getNote(year, month));
   }, [year, month, getNote]);
 
-  // Debounce save to LocalStorage
   useEffect(() => {
     const handler = setTimeout(() => {
       saveNote(year, month, localNote);
@@ -108,10 +106,9 @@ export default function AgendaPanel({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       
-      {/* Monthly Notes Section */}
       <div className="shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
         <div 
-          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-1 border-gray-200"
+          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-1 border-gray-200 dark:border-gray-800"
           onClick={() => setShowNotes(!showNotes)}
         >
           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold text-sm">
@@ -127,7 +124,7 @@ export default function AgendaPanel({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden border-l-1 border-gray-200"
+              className="overflow-hidden border-l-1 border-gray-200 dark:border-gray-800"
             >
               <div className="px-5 pb-4 pt-1">
                 <textarea

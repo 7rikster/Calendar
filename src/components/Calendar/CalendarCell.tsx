@@ -81,7 +81,6 @@ const CalendarCell = memo(function CalendarCell({
       onMouseEnter={handleMouseEnter}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Multi-day colored bars (standard document flow, expanding height) */}
       <div className="w-full flex flex-col gap-[2px] z-10 pointer-events-none mb-0.5">
         {paddedSlots.map((event, index) => {
           if (!event) return <div key={`empty-${index}`} className="h-3.5 sm:h-4 w-full shrink-0" />;

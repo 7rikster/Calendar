@@ -56,7 +56,6 @@ export default function CalendarGrid({
     })
   };
 
-  // --- Slotting Logic for continuous multi-day events ---
   const eventSpansDate = (ev: CalendarEvent, dateKey: string) => {
     const evStart = ev.date;
     const evEnd = ev.endDate || ev.date;
@@ -111,7 +110,6 @@ export default function CalendarGrid({
     });
     maxSlotsByWeek.push(max);
   }
-  // ----------------------------------------------------
 
   const touchStartX = useRef<number | null>(null);
 
@@ -124,7 +122,6 @@ export default function CalendarGrid({
     const touchEndX = e.changedTouches[0].clientX;
     const deltaX = touchStartX.current - touchEndX;
 
-    // A swipe longer than 50px triggers the month change
     if (deltaX > 50 && onNextMonth) {
       onNextMonth();
     } else if (deltaX < -50 && onPrevMonth) {

@@ -45,7 +45,6 @@ export function formatTime(time: string): string {
   return `${h}:${String(minutes).padStart(2, '0')} ${ampm}`;
 }
 
-/** Check if two dates represent the same calendar day */
 export function isSameDay(d1: Date, d2: Date): boolean {
   return (
     d1.getFullYear() === d2.getFullYear() &&
@@ -106,18 +105,15 @@ export function generateCalendarGrid(
   const prevYear = month === 0 ? year - 1 : year;
   const daysInPrevMonth = getDaysInMonth(prevYear, prevMonth);
 
-  // Previous month overflow days
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
     const day = daysInPrevMonth - i;
     days.push(createCalendarDay(new Date(prevYear, prevMonth, day), false));
   }
 
-  // Current month days
   for (let day = 1; day <= daysInCurrentMonth; day++) {
     days.push(createCalendarDay(new Date(year, month, day), true));
   }
 
-  // Next month overflow (fill only the remaining days needed for full weeks)
   const nextMonth = month === 11 ? 0 : month + 1;
   const nextYear = month === 11 ? year + 1 : year;
   const totalDays = Math.ceil((firstDayOfWeek + daysInCurrentMonth) / 7) * 7;
