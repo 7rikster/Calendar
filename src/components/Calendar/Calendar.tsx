@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useRangeSelection } from '@/hooks/useRangeSelection';
 import { useEvents } from '@/hooks/useEvents';
+import { type CalendarEvent } from '@/data/mockEvents';
 import CalendarHeader from './CalendarHeader';
 import CalendarGrid from './CalendarGrid';
 import EventModal from './EventModal';
@@ -13,15 +14,17 @@ import ThemeToggle from '@/components/themeToggle';
 export default function Calendar() {
   const { year, month, calendarDays, direction, goToPrevMonth, goToNextMonth, goToToday } = useCalendar();
   const rangeSelection = useRangeSelection();
-  const { getEventsForDate, getEventsForRange, addEvent, deleteEvent } = useEvents();
+  const { getEventsForDate, getEventsForRange, addEvent, deleteEvent, editEvent, getConflicts } = useEvents();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDate, setModalDate] = useState<Date | null>(null);
   const [modalEndDate, setModalEndDate] = useState<Date | null>(null);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   const [agendaOpen, setAgendaOpen] = useState(false);
 
   const handleOpenModal = useCallback((date: Date) => {
+    setEditingEvent(null);
     const range = rangeSelection.getEffectiveRange();
     if (range && range.start.getTime() !== range.end.getTime()) {
       setModalDate(range.start);
@@ -33,17 +36,35 @@ export default function Calendar() {
     setModalOpen(true);
   }, [rangeSelection]);
 
+  const handleEditEventClick = useCallback((event: CalendarEvent) => {
+    setEditingEvent(event);
+    const [y, m, d] = event.date.split('-').map(Number);
+    setModalDate(new Date(y, m - 1, d));
+    if (event.endDate && event.endDate !== event.date) {
+      const [ey, em, ed] = event.endDate.split('-').map(Number);
+      setModalEndDate(new Date(ey, em - 1, ed));
+    } else {
+      setModalEndDate(null);
+    }
+    setModalOpen(true);
+  }, []);
+
   const handleCloseModal = useCallback(() => {
     setModalOpen(false);
     setModalDate(null);
     setModalEndDate(null);
+    setTimeout(() => setEditingEvent(null), 300); // clear after animation
   }, []);
 
   const handleSaveEvent = useCallback(
-    (event: { title: string; date: string; endDate?: string; time: string; color: string; description?: string }) => {
-      addEvent(event);
+    (eventData: { title: string; date: string; endDate?: string; time: string; color: string; description?: string }) => {
+      if (editingEvent) {
+        editEvent(editingEvent.id, eventData);
+      } else {
+        addEvent(eventData);
+      }
     },
-    [addEvent]
+    [addEvent, editEvent, editingEvent]
   );
 
   const hasSelection = rangeSelection.startDate !== null;
@@ -151,6 +172,7 @@ export default function Calendar() {
               getEventsForRange={getEventsForRange}
               onDeleteEvent={deleteEvent}
               onCreateEvent={handleOpenModal}
+              onEditEvent={handleEditEventClick}
             />
           </div>
         </div>
@@ -160,8 +182,10 @@ export default function Calendar() {
         isOpen={modalOpen}
         selectedDate={modalDate}
         selectedEndDate={modalEndDate}
+        eventToEdit={editingEvent}
         onClose={handleCloseModal}
         onSave={handleSaveEvent}
+        onCheckConflicts={getConflicts}
       />
     </div>
   );

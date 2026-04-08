@@ -3,6 +3,7 @@
 import { type CalendarDay, DAY_NAMES_SHORT } from '@/utils/dateUtils';
 import { type CalendarEvent } from '@/data/mockEvents';
 import CalendarCell from './CalendarCell';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CalendarGridProps {
   calendarDays: CalendarDay[];
@@ -35,15 +36,23 @@ export default function CalendarGrid({
   onMouseUp,
   onDoubleClick,
 }: CalendarGridProps) {
-  const animClass =
-    direction === 'left'
-      ? 'animate-slide-in-left'
-      : direction === 'right'
-        ? 'animate-slide-in-right'
-        : 'animate-fade-in';
+  const slideVariants = {
+    enter: (dir: 'left' | 'right' | null) => ({
+      x: dir === 'left' ? '50%' : dir === 'right' ? '-50%' : 0,
+      opacity: 0
+    }),
+    center: {
+      x: 0,
+      opacity: 1
+    },
+    exit: (dir: 'left' | 'right' | null) => ({
+      x: dir === 'left' ? '-50%' : dir === 'right' ? '50%' : 0,
+      opacity: 0
+    })
+  };
 
   return (
-    <div className="px-2 sm:px-4 pb-3 sm:pb-5">
+    <div className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full">
       <div className="grid grid-cols-7 mb-1">
         {DAY_NAMES_SHORT.map((name, i) => (
           <div
@@ -60,27 +69,37 @@ export default function CalendarGrid({
         ))}
       </div>
       <div className="h-px bg-slate-200 dark:bg-slate-700 mb-1" />
-      <div
-        key={`${year}-${month}`}
-        className={`grid grid-cols-7 ${animClass}`}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-      >
-        {calendarDays.map(day => (
-          <div key={day.dateKey} className="group">
-            <CalendarCell
-              day={day}
-              events={getEventsForDate(day.date)}
-              isRangeStart={isRangeStart(day.date)}
-              isRangeEnd={isRangeEnd(day.date)}
-              isRangeMiddle={isRangeMiddle(day.date)}
-              isInRange={isInRange(day.date)}
-              onMouseDown={onMouseDown}
-              onMouseEnter={onMouseEnter}
-              onDoubleClick={onDoubleClick}
-            />
-          </div>
-        ))}
+      <div className="relative overflow-hidden w-full">
+        <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+          <motion.div
+            key={`${year}-${month}`}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+            className="grid grid-cols-7 w-full"
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
+          >
+            {calendarDays.map(day => (
+              <div key={day.dateKey} className="group">
+                <CalendarCell
+                  day={day}
+                  events={getEventsForDate(day.date)}
+                  isRangeStart={isRangeStart(day.date)}
+                  isRangeEnd={isRangeEnd(day.date)}
+                  isRangeMiddle={isRangeMiddle(day.date)}
+                  isInRange={isInRange(day.date)}
+                  onMouseDown={onMouseDown}
+                  onMouseEnter={onMouseEnter}
+                  onDoubleClick={onDoubleClick}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

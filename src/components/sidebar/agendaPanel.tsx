@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { type CalendarEvent } from '@/data/mockEvents';
 import { formatDateDisplay, formatTime, formatDateKey } from '@/utils/dateUtils';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { Button } from '../ui/button';
 
 interface AgendaPanelProps {
@@ -13,6 +13,7 @@ interface AgendaPanelProps {
   getEventsForRange: (start: Date, end: Date) => CalendarEvent[];
   onDeleteEvent: (id: string) => void;
   onCreateEvent: (date: Date) => void;
+  onEditEvent: (event: CalendarEvent) => void;
 }
 
 function parseDateKey(dateKey: string): Date {
@@ -38,6 +39,7 @@ export default function AgendaPanel({
   getEventsForRange,
   onDeleteEvent,
   onCreateEvent,
+  onEditEvent,
 }: AgendaPanelProps) {
   const events = useMemo(() => {
     if (!startDate) return [];
@@ -136,7 +138,7 @@ export default function AgendaPanel({
         {hasSelection && !isRange && events.length > 0 && (
           <>
             {events.map(event => (
-              <EventCard key={event.id} event={event} onDelete={onDeleteEvent} />
+              <EventCard key={event.id} event={event} onDelete={onDeleteEvent} onEdit={onEditEvent} />
             ))}
           </>
         )}
@@ -149,7 +151,7 @@ export default function AgendaPanel({
                   {formatDateDisplay(date)}
                 </p>
                 {dayEvents.map(event => (
-                  <EventCard key={event.id} event={event} onDelete={onDeleteEvent} />
+                  <EventCard key={event.id} event={event} onDelete={onDeleteEvent} onEdit={onEditEvent} />
                 ))}
               </div>
             ))}
@@ -173,7 +175,7 @@ export default function AgendaPanel({
   );
 }
 
-function EventCard({ event, onDelete }: { event: CalendarEvent; onDelete: (id: string) => void }) {
+function EventCard({ event, onDelete, onEdit }: { event: CalendarEvent; onDelete: (id: string) => void; onEdit: (event: CalendarEvent) => void }) {
   const isMultiDay = event.endDate && event.endDate !== event.date;
 
   return (
@@ -215,16 +217,28 @@ function EventCard({ event, onDelete }: { event: CalendarEvent; onDelete: (id: s
         </div>
       </div>
 
-      <Button
-        onClick={(e) => { e.stopPropagation(); onDelete(event.id); }}
-        variant="ghost"
-        size="icon"
-        className="w-8 h-8 text-slate-400 hover:text-red-500
-          hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 shrink-0 cursor-pointer"
-        aria-label={`Delete ${event.title}`}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <div className="flex flex-col items-center gap-1 shrink-0">
+        <Button
+          onClick={(e) => { e.stopPropagation(); onEdit(event); }}
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-slate-400 hover:text-blue-500
+            hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 cursor-pointer"
+          aria-label={`Edit ${event.title}`}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={(e) => { e.stopPropagation(); onDelete(event.id); }}
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-slate-400 hover:text-red-500
+            hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 cursor-pointer"
+          aria-label={`Delete ${event.title}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

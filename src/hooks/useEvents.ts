@@ -12,7 +12,9 @@ export interface UseEventsReturn {
   getEventsForDate: (date: Date) => CalendarEvent[];
   getEventsForRange: (start: Date, end: Date) => CalendarEvent[];
   addEvent: (event: Omit<CalendarEvent, 'id'>) => void;
+  editEvent: (id: string, event: Omit<CalendarEvent, 'id'>) => void;
   deleteEvent: (id: string) => void;
+  getConflicts: (dateKey: string, endDateKey: string | undefined, time: string, excludeId?: string) => CalendarEvent[];
 }
 
 
@@ -100,5 +102,26 @@ export function useEvents(): UseEventsReturn {
     });
   }, [persistEvents]);
 
-  return { events, eventsByDate, getEventsForDate, getEventsForRange, addEvent, deleteEvent };
+  const editEvent = useCallback((id: string, eventData: Omit<CalendarEvent, 'id'>) => {
+    setEvents(prev => {
+      const updated = prev.map(e => (e.id === id ? { ...eventData, id } : e));
+      persistEvents(updated);
+      return updated;
+    });
+  }, [persistEvents]);
+  const getConflicts = useCallback(
+    (dateKey: string, endDateKey: string | undefined, time: string, excludeId?: string): CalendarEvent[] => {
+      const rangeStart = dateKey;
+      const rangeEnd = endDateKey || dateKey;
+      return events.filter(ev => {
+        if (excludeId && ev.id === excludeId) return false;
+        if (ev.time !== time) return false;
+        const evEnd = ev.endDate || ev.date;
+        return ev.date <= rangeEnd && evEnd >= rangeStart;
+      });
+    },
+    [events]
+  );
+
+  return { events, eventsByDate, getEventsForDate, getEventsForRange, addEvent, deleteEvent, editEvent, getConflicts };
 }
