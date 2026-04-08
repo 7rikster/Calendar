@@ -134,17 +134,3 @@ export interface MonthTheme {
   accentColor: string;
 }
 
-export const MONTH_THEMES: MonthTheme[] = [
-  { gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)', accentColor: '#4dd0e1' },
-  { gradient: 'linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)', accentColor: '#e91e63' },
-  { gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', accentColor: '#00e676' },
-  { gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', accentColor: '#ff6090' },
-  { gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', accentColor: '#26c6da' },
-  { gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', accentColor: '#7c4dff' },
-  { gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', accentColor: '#ff4081' },
-  { gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', accentColor: '#ff7043' },
-  { gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', accentColor: '#ce93d8' },
-  { gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', accentColor: '#ef5350' },
-  { gradient: 'linear-gradient(135deg, #3a1c71 0%, #d76d77 50%, #ffaf7b 100%)', accentColor: '#ff8a65' },
-  { gradient: 'linear-gradient(135deg, #0c3547 0%, #183d5d 50%, #2a4a7f 100%)', accentColor: '#4fc3f7' },
-];

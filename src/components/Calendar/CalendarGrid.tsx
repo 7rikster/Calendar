@@ -4,6 +4,7 @@ import { type CalendarDay, DAY_NAMES_SHORT } from '@/utils/dateUtils';
 import { type CalendarEvent } from '@/data/mockEvents';
 import CalendarCell from './CalendarCell';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRef } from 'react';
 
 interface CalendarGridProps {
   calendarDays: CalendarDay[];
@@ -19,6 +20,8 @@ interface CalendarGridProps {
   onMouseEnter: (date: Date) => void;
   onMouseUp: () => void;
   onDoubleClick: (date: Date) => void;
+  onPrevMonth?: () => void;
+  onNextMonth?: () => void;
 }
 
 export default function CalendarGrid({
@@ -35,6 +38,8 @@ export default function CalendarGrid({
   onMouseEnter,
   onMouseUp,
   onDoubleClick,
+  onPrevMonth,
+  onNextMonth,
 }: CalendarGridProps) {
   const slideVariants = {
     enter: (dir: 'left' | 'right' | null) => ({
@@ -51,8 +56,90 @@ export default function CalendarGrid({
     })
   };
 
+  // --- Slotting Logic for continuous multi-day events ---
+  const eventSpansDate = (ev: CalendarEvent, dateKey: string) => {
+    const evStart = ev.date;
+    const evEnd = ev.endDate || ev.date;
+    return dateKey >= evStart && dateKey <= evEnd;
+  };
+
+  const slotsByDate: Record<string, (CalendarEvent | null)[]> = {};
+  calendarDays.forEach(day => slotsByDate[day.dateKey] = []);
+
+  const multiDayEventsMap = new Map<string, CalendarEvent>();
+  calendarDays.forEach(day => {
+    getEventsForDate(day.date).forEach(e => {
+      if (e.endDate && e.endDate !== e.date) {
+        multiDayEventsMap.set(e.id, e);
+      }
+    });
+  });
+
+  const multiDayEvents = Array.from(multiDayEventsMap.values());
+  multiDayEvents.sort((a, b) => {
+    const aStart = new Date(a.date).getTime();
+    const bStart = new Date(b.date).getTime();
+    if (aStart !== bStart) return aStart - bStart;
+    const aEnd = new Date(a.endDate || a.date).getTime();
+    const bEnd = new Date(b.endDate || b.date).getTime();
+    return bEnd - aEnd;
+  });
+
+  multiDayEvents.forEach(event => {
+    const activeDates = calendarDays.filter(day => eventSpansDate(event, day.dateKey)).map(d => d.dateKey);
+    if (activeDates.length === 0) return;
+
+    let slot = 0;
+    while (true) {
+      const isFree = activeDates.every(date => !slotsByDate[date][slot]);
+      if (isFree) break;
+      slot++;
+    }
+
+    activeDates.forEach(date => {
+      while (slotsByDate[date].length <= slot) slotsByDate[date].push(null);
+      slotsByDate[date][slot] = event;
+    });
+  });
+
+  const maxSlotsByWeek: number[] = [];
+  for (let i = 0; i < calendarDays.length; i += 7) {
+    const week = calendarDays.slice(i, i + 7);
+    let max = 0;
+    week.forEach(day => {
+      max = Math.max(max, slotsByDate[day.dateKey].length);
+    });
+    maxSlotsByWeek.push(max);
+  }
+  // ----------------------------------------------------
+
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX.current - touchEndX;
+
+    // A swipe longer than 50px triggers the month change
+    if (deltaX > 50 && onNextMonth) {
+      onNextMonth();
+    } else if (deltaX < -50 && onPrevMonth) {
+      onPrevMonth();
+    }
+    
+    touchStartX.current = null;
+  };
+
   return (
-    <div className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full">
+    <div 
+      className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="grid grid-cols-7 mb-1">
         {DAY_NAMES_SHORT.map((name, i) => (
           <div
@@ -83,11 +170,13 @@ export default function CalendarGrid({
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
-            {calendarDays.map(day => (
+            {calendarDays.map((day, i) => (
               <div key={day.dateKey} className="group">
                 <CalendarCell
                   day={day}
                   events={getEventsForDate(day.date)}
+                  slottedEvents={slotsByDate[day.dateKey]}
+                  maxSlots={maxSlotsByWeek[Math.floor(i / 7)]}
                   isRangeStart={isRangeStart(day.date)}
                   isRangeEnd={isRangeEnd(day.date)}
                   isRangeMiddle={isRangeMiddle(day.date)}

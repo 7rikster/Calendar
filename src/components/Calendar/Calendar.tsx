@@ -131,6 +131,8 @@ export default function Calendar() {
                 onMouseEnter={rangeSelection.handleMouseEnter}
                 onMouseUp={rangeSelection.handleMouseUp}
                 onDoubleClick={handleOpenModal}
+                onPrevMonth={goToPrevMonth}
+                onNextMonth={goToNextMonth}
               />
             </div>
           </div>

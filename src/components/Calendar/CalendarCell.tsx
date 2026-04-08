@@ -8,6 +8,8 @@ import EventBadge from './EventBadge';
 interface CalendarCellProps {
   day: CalendarDay;
   events: CalendarEvent[];
+  slottedEvents: (CalendarEvent | null)[];
+  maxSlots: number;
   isRangeStart: boolean;
   isRangeEnd: boolean;
   isRangeMiddle: boolean;
@@ -20,6 +22,8 @@ interface CalendarCellProps {
 const CalendarCell = memo(function CalendarCell({
   day,
   events,
+  slottedEvents = [],
+  maxSlots = 0,
   isRangeStart,
   isRangeEnd,
   isRangeMiddle,
@@ -45,6 +49,11 @@ const CalendarCell = memo(function CalendarCell({
 
   const isSingleSelect = isRangeStart && isRangeEnd;
 
+  const paddedSlots = [...slottedEvents];
+  while (paddedSlots.length < maxSlots) paddedSlots.push(null);
+
+  const singleDayEvents = events.filter(e => !e.endDate || e.endDate === e.date);
+
   const getDateColor = () => {
     if (day.isToday) return '';
     if (!day.isCurrentMonth) return 'text-slate-400 dark:text-slate-400';
@@ -56,8 +65,8 @@ const CalendarCell = memo(function CalendarCell({
   return (
     <div
       className={`
-        relative flex flex-col items-center justify-center pt-1 pb-0.5
-        min-h-[48px] sm:min-h-[56px] md:min-h-[68px]
+        relative flex flex-col items-center justify-center pt-1 pb-1 w-full
+        min-h-[48px] sm:min-h-[56px] md:min-h-[68px] h-full
         cursor-pointer select-none transition-all duration-150
         ${!isInRange && day.isCurrentMonth ? 'hover:bg-slate-100/80 dark:hover:bg-slate-700/40' : ''}
         ${!day.isCurrentMonth ? 'opacity-35' : ''}
@@ -69,6 +78,29 @@ const CalendarCell = memo(function CalendarCell({
       onMouseEnter={handleMouseEnter}
       onDoubleClick={handleDoubleClick}
     >
+      {/* Multi-day colored bars (standard document flow, expanding height) */}
+      <div className="w-full flex flex-col gap-[2px] z-10 pointer-events-none mb-0.5">
+        {paddedSlots.map((event, index) => {
+          if (!event) return <div key={`empty-${index}`} className="h-3.5 sm:h-4 w-full shrink-0" />;
+
+          const isStart = event.date === day.dateKey;
+          const isEnd = event.endDate === day.dateKey;
+          return (
+            <div
+              key={`${event.id}-${index}`}
+              style={{ backgroundColor: event.color }}
+              className={`h-3.5 sm:h-4 shrink-0 w-full flex items-center px-1 text-[9px] sm:text-[10px] font-medium text-white/95 overflow-hidden
+                ${isStart ? 'rounded-l-sm ml-1 w-[calc(100%-4px)]' : ''}
+                ${isEnd ? 'rounded-r-sm mr-1 w-[calc(100%-4px)]' : ''}
+                ${isStart && isEnd ? 'w-[calc(100%-8px)]' : ''}
+              `}
+            >
+              {isStart ? <span className="truncate drop-shadow-sm">{event.title}</span> : <span className="opacity-0">.</span>}
+            </div>
+          );
+        })}
+      </div>
+
       <div
         className={`
           w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full
@@ -88,7 +120,9 @@ const CalendarCell = memo(function CalendarCell({
         {day.day}
       </div>
 
-      <EventBadge events={events} maxVisible={3} />
+      <div className="z-0 mt-auto pb-2">
+        <EventBadge events={singleDayEvents} maxVisible={3} />
+      </div>
 
       {events.length > 0 && day.isCurrentMonth && (
         <div className="absolute z-30 bottom-full left-1/2 -translate-x-1/2 mb-1
