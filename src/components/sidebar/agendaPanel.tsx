@@ -106,13 +106,12 @@ export default function AgendaPanel({
   const isRange = startDate && endDate && formatDateKey(startDate) !== formatDateKey(endDate);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl 
-      border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       
       {/* Monthly Notes Section */}
       <div className="shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
         <div 
-          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
+          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-1 border-gray-200"
           onClick={() => setShowNotes(!showNotes)}
         >
           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold text-sm">
@@ -128,11 +127,11 @@ export default function AgendaPanel({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
+              className="overflow-hidden border-l-1 border-gray-200"
             >
               <div className="px-5 pb-4 pt-1">
                 <textarea
-                  className="w-full min-h-[100px] resize-y bg-slate-50 dark:bg-slate-800 
+                  className="w-full min-h-[100px] resize-y bg-slate-50 dark:bg-slate-800 custom-scrollbar
                     border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm
                     text-slate-700 dark:text-slate-300 placeholder:text-slate-400
                     focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
@@ -159,7 +158,7 @@ export default function AgendaPanel({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-3 space-y-2">
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-5 py-3 space-y-2">
         {!hasSelection && (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-3">

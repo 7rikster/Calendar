@@ -69,7 +69,7 @@ const CalendarCell = memo(function CalendarCell({
     <div
       className={`
         relative flex flex-col items-center justify-center pt-1 pb-1 w-full
-        min-h-[48px] sm:min-h-[56px] md:min-h-[68px] h-full
+        min-h-[48px] sm:min-h-[56px] md:min-h-[76px] h-full
         cursor-pointer select-none transition-all duration-150
         ${!isInRange && day.isCurrentMonth ? 'hover:bg-slate-100/80 dark:hover:bg-slate-700/40' : ''}
         ${!day.isCurrentMonth ? 'opacity-35' : ''}

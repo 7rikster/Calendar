@@ -86,8 +86,8 @@ export default function Calendar() {
   }, [hasSelection, rangeSelection]);
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-      <div data-toolbar className="flex items-center justify-between mb-4 sm:mb-6">
+    <div className="w-full max-w-[1200px] mx-auto px-3 sm:px-4 lg:px-6 py-4">
+      <div data-toolbar className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
         </div>
         <div className="flex items-center gap-3">
@@ -104,18 +104,20 @@ export default function Calendar() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-5">
-        <div className="flex-1 min-w-0">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-slate-900/50
-            overflow-hidden border border-slate-100 dark:border-slate-700/50
-            transition-shadow duration-300 hover:shadow-2xl dark:hover:shadow-slate-900/60">
-            <CalendarHeader
-              year={year}
-              month={month}
-              onPrevMonth={goToPrevMonth}
-              onNextMonth={goToNextMonth}
-              onToday={goToToday}
-            />
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-slate-900/50
+        overflow-hidden border border-slate-100 dark:border-slate-700/50
+        transition-shadow duration-300 hover:shadow-2xl dark:hover:shadow-slate-900/60">
+        
+        <CalendarHeader
+          year={year}
+          month={month}
+          onPrevMonth={goToPrevMonth}
+          onNextMonth={goToNextMonth}
+          onToday={goToToday}
+        />
+
+        <div className="flex flex-col lg:flex-row lg:relative">
+          <div className="flex-1 min-w-0">
             <div data-calendar-interactive>
               <CalendarGrid
                 calendarDays={calendarDays}
@@ -137,49 +139,48 @@ export default function Calendar() {
             </div>
           </div>
 
-          <button
-            onClick={() => setAgendaOpen(!agendaOpen)}
-            className="lg:hidden w-full mt-3 h-10 rounded-xl bg-white dark:bg-slate-800
-              border border-slate-200 dark:border-slate-700 shadow-sm
-              text-sm font-medium text-slate-600 dark:text-slate-300
-              flex items-center justify-center gap-2
-              hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="8" y1="6" x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" />
-              <line x1="3" y1="12" x2="3.01" y2="12" />
-              <line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-            {agendaOpen ? 'Hide Agenda' : 'Show Agenda'}
-          </button>
-
-          <p className="hidden md:block mt-3 text-center text-[11px] text-slate-400 dark:text-slate-500">
-            Click to select dates • Drag to select a range • Double-click to create an event
-          </p>
-        </div>
-
-        <div className={`
-          lg:w-[300px] xl:w-[320px] shrink-0
-          ${agendaOpen ? 'block' : 'hidden'} lg:block
-          transition-all duration-300
-        `}>
-          <div data-calendar-interactive className="lg:sticky lg:top-6 h-auto lg:h-[calc(100vh-6rem)] lg:max-h-[700px]">
-            <AgendaPanel
-              startDate={rangeSelection.startDate}
-              endDate={rangeSelection.endDate}
-              getEventsForDate={getEventsForDate}
-              getEventsForRange={getEventsForRange}
-              onDeleteEvent={deleteEvent}
-              onCreateEvent={handleOpenModal}
-              onEditEvent={handleEditEventClick}
-              year={year}
-              month={month}
-            />
+          <div className={`
+            lg:w-[320px] xl:w-[350px] shrink-0
+            ${agendaOpen ? 'block' : 'hidden'} lg:block
+            border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700/50
+            transition-all duration-300 bg-slate-50/50 dark:bg-slate-900/50
+          `}>
+            <div data-calendar-interactive className="h-full lg:absolute lg:inset-y-0 lg:right-0 lg:w-[320px] xl:w-[350px]">
+              <AgendaPanel
+                startDate={rangeSelection.startDate}
+                endDate={rangeSelection.endDate}
+                getEventsForDate={getEventsForDate}
+                getEventsForRange={getEventsForRange}
+                onDeleteEvent={deleteEvent}
+                onCreateEvent={handleOpenModal}
+                onEditEvent={handleEditEventClick}
+                year={year}
+                month={month}
+              />
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-4 flex flex-col items-center">
+        <button
+          onClick={() => setAgendaOpen(!agendaOpen)}
+          className="lg:hidden w-full max-w-sm h-10 rounded-xl bg-white dark:bg-slate-800
+            border border-slate-200 dark:border-slate-700 shadow-sm
+            text-sm font-medium text-slate-600 dark:text-slate-300
+            flex items-center justify-center gap-2
+            hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6" />
+            <line x1="8" y1="12" x2="21" y2="12" />
+            <line x1="8" y1="18" x2="21" y2="18" />
+            <line x1="3" y1="6" x2="3.01" y2="6" />
+            <line x1="3" y1="12" x2="3.01" y2="12" />
+            <line x1="3" y1="18" x2="3.01" y2="18" />
+          </svg>
+          {agendaOpen ? 'Hide Agenda' : 'Show Agenda'}
+        </button>
       </div>
 
       <EventModal

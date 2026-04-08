@@ -136,7 +136,7 @@ export default function CalendarGrid({
 
   return (
     <div 
-      className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full dark:bg-slate-900/80"
+      className="px-2 sm:px-4 pb-3 sm:pb-5 overflow-hidden w-full dark:bg-slate-900/80 pt-2 lg:pt-4"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

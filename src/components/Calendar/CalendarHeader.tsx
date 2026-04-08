@@ -20,7 +20,7 @@ export default function CalendarHeader({
 }: CalendarHeaderProps) {
   return (
     <div className="relative overflow-hidden rounded-t-2xl select-none bg-slate-900">
-      <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
+      <div className="relative h-44 sm:h-56 md:h-64 overflow-hidden">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.img
             key={month}
@@ -99,12 +99,26 @@ export default function CalendarHeader({
           </button>
         </div>
       </div>
-
-      <div className="relative h-5 sm:h-6 bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center gap-[10px] sm:gap-3 overflow-hidden">
+      
+      {/* <div className="relative h-5 sm:h-6 bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center gap-[10px] sm:gap-3 overflow-hidden">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}
             className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border-2 border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-700 shadow-inner"
+          />
+        ))}
+      </div> */}
+
+      <div className="relative h-5 sm:h-6 bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center gap-[10px] sm:gap-3 overflow-hidden">
+        {Array.from({ length: 64 }).map((_, i) => (
+          <div
+            key={i}
+            className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border-2 border-slate-400 dark:border-slate-500 bg-slate-200 dark:bg-slate-700 shadow-inner ${
+              i === 48 ? 'hidden md:block lg:hidden' :
+              i >= 38 ? 'hidden md:block' :
+              i >= 22 ? 'hidden sm:block' :
+              'block'
+            }`}
           />
         ))}
       </div>
