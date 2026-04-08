@@ -8,7 +8,7 @@ import { type CalendarEvent } from '@/data/mockEvents';
 import CalendarHeader from './CalendarHeader';
 import CalendarGrid from './CalendarGrid';
 import EventModal from './EventModal';
-import AgendaPanel from '@/components/Sidebar/agendaPanel';
+import AgendaPanel from '@/components/Sidebar/AgendaPanel';
 import ThemeToggle from '@/components/themeToggle';
 
 export default function Calendar() {
