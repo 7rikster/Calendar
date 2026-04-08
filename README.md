@@ -1,8 +1,7 @@
 # 🗓️ Premium Interactive Calendar 
 
-A production-grade, highly polished interactive Calendar built specifically for modern SaaS dashboard interfaces. It fully implements advanced event handling, date range selections, localized state-persistence, and Google Calendar-styled UI representations.
+A production-grade, highly polished interactive Calendar built specifically for modern SaaS dashboard interfaces. It fully implements advanced event handling, date range selections and localized state-persistence
 
-![Demo](./public/demo.gif)
 
 ## 🎯 What Problem this Solves
 Developers often rely on heavy, inflexible, generic calendar packages that lack deep UI customization or struggle to adapt to modern design trends (glassmorphism, organic bounding, dynamic layouts) natively within Tailwind. 
@@ -33,7 +32,7 @@ This standalone module serves as a natively integrated, robust interactive calen
 ---
 
 ## ⚙️ Tech Stack
-* **Framework**: React 19 (Next.js / Vite Context compatible)
+* **Framework**: Next.js
 * **Styling**: TailwindCSS (Utility-first, Dark Mode Tailored)
 * **Animations**: Framer Motion
 * **Icons**: Lucide-React
@@ -45,7 +44,7 @@ This standalone module serves as a natively integrated, robust interactive calen
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/your-username/Calendar.git
+git clone https://github.com/7rikster/Calendar.git
 cd Calendar
 ```
 
